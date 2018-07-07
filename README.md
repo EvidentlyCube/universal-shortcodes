@@ -61,6 +61,9 @@ Internal methods are exposed via property `_universalShortcodes` - their APIs ar
 
 # Options
 
+1. `shortcodeOpenCharacter (string 1 character)`, default `[` - specifies the character used as the opening of a shortcode.
+1. `shortcodeCloseCharacter (string 1 character)`, default `]` - specifies the character used as the closing of a shortcode.
+
 Currently the options object does not change anything.
 
 # Todo:

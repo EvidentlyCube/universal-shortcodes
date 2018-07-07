@@ -1,6 +1,6 @@
 {
 	"name": "universal-shortcodes",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "A universal shortcode parser that can work with Wordpress shortcodes, BBCodes and also more customized variants",
 	"main": "dist/index.js",
 	"scripts": {

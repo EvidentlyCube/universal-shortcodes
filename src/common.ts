@@ -3,6 +3,8 @@ export type Dict = {
 }
 
 export type Options = {
+    shortcodeOpenCharacter?: string,
+    shortcodeCloseCharacter?: string,
     [key: string]: string
 };
 
@@ -23,3 +25,9 @@ export type TreeToken = {
 };
 
 export type ShortcodeCompileCallback = (shortcode: String, args: Dict, contents: string) => string;
+
+const escapeRegexp = /[-\/\\^$*+?.()|[\]{}]/g;
+export function escapeRegex(text:string): string
+{
+    return text.replace(escapeRegexp, '\\$&');
+}

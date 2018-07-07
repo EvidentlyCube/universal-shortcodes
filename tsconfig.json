@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"outFile": "./dist/index.js",
 		"allowJs": false,
-		"target": "es5",
+		"target": "es2017",
 		"declaration": true,
 		"module": "none",
 		"moduleResolution": "node",

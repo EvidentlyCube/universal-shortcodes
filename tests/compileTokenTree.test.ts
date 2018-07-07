@@ -1,49 +1,73 @@
 import {expect} from 'chai';
 import 'mocha';
 import {compileShortcodes} from '../index';
+import {Options} from "../src/common";
 
-describe('compileTokenTree', () => {
-    it("Just text", async () => {
-        runTest(
-            'test',
-            'test'
-        );
-    });
-    it("Just token", async () => {
-        runTest(
-            '[button]',
-            '<button/>'
-        );
-    });
+describe('compileShortcode', () => {
+    const optionsList: Options[] = [
+        {
+            shortcodeOpenCharacter: '[',
+            shortcodeCloseCharacter: ']'
+        },
+        {
+            shortcodeOpenCharacter: '{',
+            shortcodeCloseCharacter: '}'
+        }
+    ];
 
-    it("Token with text inside", async () => {
-        runTest(
-            '[button]text[/button]',
-            '<button>text</button>'
-        );
-    });
+    optionsList.forEach(options => {
+        describe(`${options.shortcodeOpenCharacter}${options.shortcodeCloseCharacter}`, () => {
+            const L = options.shortcodeOpenCharacter;
+            const R = options.shortcodeCloseCharacter;
 
-    it("Nested tokens with text inside", async () => {
-        runTest(
-            '[button][a][/a][/button]',
-            '<button><a/></button>'
-        );
-    });
+            it("Just text", async () => {
+                runTest(
+                    'test',
+                    'test',
+                    options
+                );
+            });
+            it("Just token", async () => {
+                runTest(
+                    `${L}button${R}`,
+                    '<button/>',
+                    options
+                );
+            });
 
-    it("Nested tokens with multiple children inside", async () => {
-        runTest(
-            '[button][a][/a][b][/b][c][/c][/button]',
-            '<button><a/><b/><c/></button>'
-        );
-    });
+            it("Token with text inside", async () => {
+                runTest(
+                    `${L}button${R}text${L}/button${R}`,
+                    '<button>text</button>',
+                    options
+                );
+            });
 
-    it("Token with arguments", async () => {
-        runTest(
-            '[button 1 7 "duck" key="value" test="soup"]text[/button]',
-            '<button data-0="1" data-1="7" data-2="duck" data-key="value" data-test="soup">text</button>'
-        );
-    });
+            it("Nested tokens with text inside", async () => {
+                runTest(
+                    `${L}button${R}${L}a${R}${L}/a${R}${L}/button${R}`,
+                    '<button><a/></button>',
+                    options
+                );
+            });
 
+            it("Nested tokens with multiple children inside", async () => {
+                runTest(
+                    `${L}button${R}${L}a${R}${L}/a${R}${L}b${R}${L}/b${R}${L}c${R}${L}/c${R}${L}/button${R}`,
+                    '<button><a/><b/><c/></button>',
+                    options
+                );
+            });
+
+            it("Token with arguments", async () => {
+                runTest(
+                    `${L}button 1 7 "duck" key="value" test="soup"${R}text${L}/button${R}`,
+                    '<button data-0="1" data-1="7" data-2="duck" data-key="value" data-test="soup">text</button>',
+                    options
+                );
+            });
+        });
+    });
 });
 
 function defaultCallback(shortcode: String, args: { [key: string]: string }, contents: string): string {
@@ -61,8 +85,8 @@ function defaultCallback(shortcode: String, args: { [key: string]: string }, con
     }
 }
 
-function runTest(shortcodedText: string, expected: string): void {
-    const compiled = compileShortcodes(shortcodedText, defaultCallback);
+function runTest(shortcodedText: string, expected: string, options: Options): void {
+    const compiled = compileShortcodes(shortcodedText, defaultCallback, options);
 
     expect(compiled).to.equal(expected);
 }

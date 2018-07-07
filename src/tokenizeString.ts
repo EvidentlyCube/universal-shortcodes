@@ -1,7 +1,17 @@
-import {Options, RawToken} from "./common";
+import {escapeRegex, Options, RawToken} from "./common";
+
+function createTokenSplitRegex(options: Options): RegExp {
+    return new RegExp(''
+        +'(' // Everything is in a group for split to keep this data
+        + escapeRegex(options.shortcodeOpenCharacter)
+        + '.+?' // Contents
+        + escapeRegex(options.shortcodeCloseCharacter)
+        + ')'
+    );
+}
 
 export function tokenizeString(text: string, options: Options): RawToken[] {
-    const tokenSplitRegex = /(\[\/?.+?])/g;
+    const tokenSplitRegex = createTokenSplitRegex(options);
 
     const segments: Array<string> = text.split(tokenSplitRegex);
     const tokens: RawToken[] = [];
@@ -18,7 +28,10 @@ export function tokenizeString(text: string, options: Options): RawToken[] {
 }
 
 function convertSegment(segment: string, options: Options): RawToken {
-    if (segment.charAt(0) === '[' && segment.charAt(segment.length - 1) === ']') {
+    if (
+        segment.charAt(0) === options.shortcodeOpenCharacter
+        && segment.charAt(segment.length - 1) === options.shortcodeCloseCharacter
+    ) {
         return extractToken(segment, options);
     } else {
         return {
@@ -31,7 +44,10 @@ function convertSegment(segment: string, options: Options): RawToken {
 function extractToken(segment: string, options: Options): RawToken {
     const isClosing = segment.charAt(1) === '/';
     const name = extractTokenName(segment.substring(isClosing ? 2 : 1), options);
-    const argumentsString = segment.substring((isClosing ? 2 : 1) + name.length + 1, segment.length - 1).replace(/]$/, '');
+    const argumentsString = segment.substring(
+        Math.min((isClosing ? 2 : 1) + name.length + 1, segment.length - 1),
+        segment.length - 1
+    );
 
     return {
         type: "token",
@@ -44,14 +60,14 @@ function extractToken(segment: string, options: Options): RawToken {
 
 function extractTokenName(segment: string, options: Options): string {
     const spaceIndex = segment.indexOf(' ');
-    const closeIndex = segment.indexOf(']');
+    const closeIndex = segment.indexOf(options.shortcodeCloseCharacter);
 
     return spaceIndex === -1
         ? segment.substr(0, closeIndex)
         : segment.substr(0, spaceIndex);
 }
 
-function extractArguments(argumentsString: string, options: Options): {[key: string]:string} {
+function extractArguments(argumentsString: string, options: Options): { [key: string]: string } {
     let [encodedArgsString, encodedQuotes] = encodeQuotesInArgumentsList(argumentsString, options);
 
     const args: any = {};
@@ -63,7 +79,7 @@ function extractArguments(argumentsString: string, options: Options): {[key: str
 
         if (key === null && value !== null) {
             args[numericArgumentsCount++] = decodeArgument(value, encodedQuotes, options);
-        } else if (value !== null){
+        } else if (value !== null) {
             args[key] = decodeArgument(value, encodedQuotes, options);
         }
     }
@@ -88,7 +104,7 @@ function encodeQuotesInArgumentsList(argumentsString: string, options: Options):
 function decodeArgument(key: string, list: { [key: string]: string }, options: Options): string {
     return list.hasOwnProperty(key)
         ? list[key]
-        :key;
+        : key;
 }
 
 function extractArgument(argument: string, options: Options): [string | null, string] {
@@ -98,10 +114,10 @@ function extractArgument(argument: string, options: Options): [string | null, st
 
     const split = argument.split('=');
 
-    if (split.length === 1){
+    if (split.length === 1) {
         return [null, split[0]];
 
-    } else if (split.length === 2){
+    } else if (split.length === 2) {
         return [split[0], split[1]];
 
     } else {
