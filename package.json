@@ -1,0 +1,37 @@
+{
+	"name": "universal-shortcodes",
+	"version": "0.8.0",
+	"description": "A universal shortcode parser that can work with Wordpress shortcodes, BBCodes and also more customized variants",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "npm run docs && npm run compile",
+		"docs": "tsc --emitDeclarationOnly --declaration --declarationDir dist index.ts",
+		"compile": "parcel build index.ts",
+		"test": "mocha -r ts-node/register tests/**/*.test.ts"
+	},
+	"keywords": [
+		"shortcode",
+		"bbcode",
+		"parser",
+		"token",
+		"tokenizer"
+	],
+	"author": "Maurycy Zarzycki Evidently Cube",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:EvidentlyCube/universal-shortcodes.git"
+	},
+	"files": [
+		"dist"
+	],
+	"devDependencies": {
+		"@types/chai": "^4.1.4",
+		"@types/mocha": "^5.2.4",
+		"chai": "^4.1.2",
+		"mocha": "^5.2.0",
+		"parcel-bundler": "^1.9.4",
+		"ts-node": "^7.0.0",
+		"typescript": "^2.9.2"
+	}
+}
