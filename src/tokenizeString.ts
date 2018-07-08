@@ -59,12 +59,12 @@ function extractToken(segment: string, options: Options): RawToken {
 }
 
 function extractTokenName(segment: string, options: Options): string {
-    const spaceIndex = segment.indexOf(' ');
+    const spaceMatch = /\s/.exec(segment);
     const closeIndex = segment.indexOf(options.shortcodeCloseCharacter);
 
-    return spaceIndex === -1
+    return !spaceMatch
         ? segment.substr(0, closeIndex)
-        : segment.substr(0, spaceIndex);
+        : segment.substr(0, spaceMatch.index);
 }
 
 function extractArguments(argumentsString: string, options: Options): { [key: string]: string } {
@@ -73,7 +73,7 @@ function extractArguments(argumentsString: string, options: Options): { [key: st
     const args: any = {};
     let numericArgumentsCount = 0;
 
-    const splitElements = encodedArgsString.split(' ');
+    const splitElements = encodedArgsString.split(/\s+/);
     for (let element of splitElements) {
         const [key, value] = extractArgument(element, options);
 
